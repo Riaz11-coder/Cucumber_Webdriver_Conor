@@ -1,24 +1,34 @@
 package hooks;
 
-import com.aventstack.extentreports.ExtentTest;
+import io.cucumber.java.AfterStep;
+import io.cucumber.java.Scenario;
 import managers.DriverManager;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
-import managers.ExtentReportManager;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 
 public class Hooks {
 
-    private static ExtentTest test;
 
     @Before
     public void setUp() {
         DriverManager.getDriver().manage().window().maximize();
-        test = ExtentReportManager.createTest("Cucumber Test");
+
+    }
+
+    @AfterStep
+    public void takeScreenshot(Scenario scenario){
+        if(scenario.isFailed()){
+            TakesScreenshot takesScreenshot = (TakesScreenshot) DriverManager.getDriver();
+            byte[] screenshot = takesScreenshot.getScreenshotAs(OutputType.BYTES);
+            scenario.attach(screenshot,"image/png",screenshot.toString());
+        }
     }
 
     @After
     public void tearDown() {
         DriverManager.removeDriver();
-        ExtentReportManager.flush();
+        //ExtentReportManager.flush();
     }
 }
